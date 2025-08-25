@@ -7,7 +7,7 @@ import os
 LOG_FILE_NAME = "bot.log"
 PORT = os.environ.get('PORT', '8015')
 
-OWNER_ID = 6648688093
+OWNER_ID = 8154074711
 MSG_EFFECT = 5159385139981059251
 SHORT_URL = "arolinks.com"
 SHORT_API = "97efe163e07453fe37fcd8a36adb284fb2adca2f"
