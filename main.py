@@ -12,7 +12,7 @@ from plugins import web_server
 async def background_tasks(bots):
     while True:
         for bot_instance in bots:
-            bot_instance.LOGGER(name, bot_instance.session_name).debug("BACKGROUND_TASK: Triggering scheduled cleanup.")
+            bot_instance.LOGGER(__name__, bot_instance.session_name).debug("BACKGROUND_TASK: Triggering scheduled cleanup.")
             await run_cleanup_and_notify(bot_instance)
         await asyncio.sleep(3600)
 
@@ -75,7 +75,7 @@ async def runner():
         idle()
     )
 
-if name == "main":
+if __name__ == "__main__":
     try:
         asyncio.run(runner())
     except KeyboardInterrupt:
