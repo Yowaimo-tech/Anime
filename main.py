@@ -2,14 +2,17 @@
 
 import asyncio
 import json
+import os
+from aiohttp import web
 from bot import Bot
 from pyrogram import idle
 from plugins.cleanup import run_cleanup_and_notify
+from plugins import web_server
 
 async def background_tasks(bots):
     while True:
         for bot_instance in bots:
-            bot_instance.LOGGER(__name__, bot_instance.session_name).debug("BACKGROUND_TASK: Triggering scheduled cleanup.")
+            bot_instance.LOGGER(name, bot_instance.session_name).debug("BACKGROUND_TASK: Triggering scheduled cleanup.")
             await run_cleanup_and_notify(bot_instance)
         await asyncio.sleep(3600)
 
@@ -25,7 +28,6 @@ async def main_logic():
         setups = json.load(f)
 
     for config in setups:
-        # Reverted: Removed ad_wait_time and bypass_timeout
         bot_instance = Bot(
             session=config["session"],
             workers=config.get("workers", 8),
@@ -49,9 +51,32 @@ async def main_logic():
     return apps
 
 async def runner():
+    # 1. Initialize the bot instances as before
     apps = await main_logic()
-    await asyncio.gather(idle(), background_tasks(apps))
 
-if __name__ == "__main__":
-    try: asyncio.run(runner())
-    except KeyboardInterrupt: print("\nBot stopped manually.")
+    # 2. Set up the aiohttp web server
+    web_app = await web_server(apps)
+    app_runner = web.AppRunner(web_app)
+    await app_runner.setup()
+
+    # 3. Get the port from the environment variable for Heroku compatibility
+    # Heroku will set the PORT env var. The default is for local testing.
+    PORT = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(app_runner, "0.0.0.0", PORT)
+
+    # 4. Start the web server and print a confirmation
+    await site.start()
+    print(f"✅ Web server successfully started on port {PORT}")
+
+    # 5. Run the bot's background tasks and keep the bot clients alive concurrently.
+    # idle() keeps the bot clients connected, and background_tasks runs your periodic cleanup.
+    await asyncio.gather(
+        background_tasks(apps),
+        idle()
+    )
+
+if name == "main":
+    try:
+        asyncio.run(runner())
+    except KeyboardInterrupt:
+        print("\nBot stopped manually.")
