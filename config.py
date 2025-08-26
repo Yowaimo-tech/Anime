@@ -10,7 +10,7 @@ PORT = os.environ.get('PORT', '8015')
 OWNER_ID = 8154074711
 MSG_EFFECT = 5159385139981059251
 SHORT_URL = "arolinks.com"
-SHORT_API = "97efe163e07453fe37fcd8a36adb284fb2adca2f"
+SHORT_API = "c8b42782960bfc39429e916ac0a0628ccf360cd3"
 
 # --- TOKEN VERIFICATION SETTINGS ---
 VERIFY_EXPIRE = int(os.environ.get('VERIFY_EXPIRE', 10)) # varifed user expired time
