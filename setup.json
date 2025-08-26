@@ -1,7 +1,7 @@
 [
     {
         "session": "orihime",
-        "token": "8222459743:AAGSCIQ21EaKhP74-TKZL0W7CG4W5zeimh8",
+        "token": "8352893059:AAEnz_2iLUklbDP2gNumYS5Qv4ekM83u5P8",
         "api_id": "11619403",
         "api_hash": "b9529ed85c826521157c522f96350c8b",
         "workers": 8,
@@ -26,5 +26,6 @@
         "protect": false
     }
 ]
+
 
 
