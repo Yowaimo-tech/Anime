@@ -7,10 +7,10 @@ import os
 LOG_FILE_NAME = "bot.log"
 PORT = os.environ.get('PORT', '8015')
 
-OWNER_ID = 8154074711
+OWNER_ID = 7662893075
 MSG_EFFECT = 5159385139981059251
 SHORT_URL = "arolinks.com"
-SHORT_API = "c8b42782960bfc39429e916ac0a0628ccf360cd3"
+SHORT_API = "c1a0488312eee000ba21bc8624a7965d55e97db9"
 
 # --- TOKEN VERIFICATION SETTINGS ---
 VERIFY_EXPIRE = int(os.environ.get('VERIFY_EXPIRE', 10)) # varifed user expired time
