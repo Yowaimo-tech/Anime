@@ -71,7 +71,7 @@ async def start_command(client: Client, message: Message):
             link = f"https://t.me/{client.username}?start=verify_{token}"
             short_link = get_short(link, client)
 
-            btn = [[InlineKeyboardButton("• ᴏᴘᴇɴ ʟɪɴᴋ •", url=short_link), InlineKeyboardButton("• ᴛᴜᴛᴏʀɪᴀʟ •", url=config.TUT_VID)],[InlineKeyboardButton("• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/NaapaExtra")]]
+            btn = [[InlineKeyboardButton("• ᴏᴘᴇɴ ʟɪɴᴋ •", url=short_link), InlineKeyboardButton("• ᴛᴜᴛᴏʀɪᴀʟ •", url=config.TUT_VID)],[InlineKeyboardButton("• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/Mayhem_Premium_Bot")]]
             verify_photo = client.messages.get("VERIFY_PHOTO", "")
             
             # --- THIS IS THE MODIFIED LINE ---
@@ -142,5 +142,5 @@ async def my_plan(client: Client, message: Message):
         else: expiry_text = "🔸 **Expiry:** Permanent"
         plan_text = f"**👤 Your Profile:**\n\n🔸 **Plan:** `Premium`\n{expiry_text}\n🔸 **Ads:** `Disabled`\n🔸 **Requests:** `Enabled`"
     else:
-        plan_text = "**👤 Your Profile:**\n\n🔸 **Plan:** `Free`\n🔸 **Ads:** `Enabled`\n🔸 **Requests:** `Disabled`\n\n🔓 Unlock Premium to get more benefits\nContact: @Rtx_Contect_bot"
+        plan_text = "**👤 Your Profile:**\n\n🔸 **Plan:** `Free`\n🔸 **Ads:** `Enabled`\n🔸 **Requests:** `Disabled`\n\n🔓 Unlock Premium to get more benefits\nContact: @Mayhem_Premium_Bot"
     await message.reply_text(plan_text)
