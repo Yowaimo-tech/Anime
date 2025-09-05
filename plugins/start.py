@@ -71,7 +71,7 @@ async def start_command(client: Client, message: Message):
             link = f"https://t.me/{client.username}?start=verify_{token}"
             short_link = get_short(link, client)
 
-            btn = [[InlineKeyboardButton("• ᴏᴘᴇɴ ʟɪɴᴋ •", url=short_link), InlineKeyboardButton("• ᴛᴜᴛᴏʀɪᴀʟ •", url=config.TUT_VID)],[InlineKeyboardButton("• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/Mayhem_Premium_Bot")]]
+            btn = [[InlineKeyboardButton("• ᴏᴘᴇɴ ʟɪɴᴋ •", url=short_link), InlineKeyboardButton("• ᴛᴜᴛᴏʀɪᴀʟ •", url=config.TUT_VID)],[InlineKeyboardButton("• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/Rtx_Contect_bot")]]
             verify_photo = client.messages.get("VERIFY_PHOTO", "")
             
             # --- THIS IS THE MODIFIED LINE ---
