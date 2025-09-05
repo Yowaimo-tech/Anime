@@ -117,7 +117,7 @@ async def request_command(client: Client, message: Message):
     user_id = message.from_user.id
     if user_id in client.admins or user_id == client.owner: return await message.reply_text("🔹 **Admins cannot make requests.**")
     user_state = await get_user_state_with_cache(client, user_id)
-    if user_state is None or not user_state.get('is_pro', False): return await message.reply("❌ **Only premium users can make requests.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/NaapaExtra")]]))
+    if user_state is None or not user_state.get('is_pro', False): return await message.reply("❌ **Only premium users can make requests.**", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •", url="https://t.me/Rtx_Contect_bot")]]))
     if len(message.command) < 2: return await message.reply("⚠️ **Usage:**\n`/request <content name>`")
     owner_message = f"📩 **New Request**\n\n**From:** {message.from_user.mention} (`{user_id}`)\n**Request:** `{' '.join(message.command[1:])}`"
     try:
@@ -142,5 +142,5 @@ async def my_plan(client: Client, message: Message):
         else: expiry_text = "🔸 **Expiry:** Permanent"
         plan_text = f"**👤 Your Profile:**\n\n🔸 **Plan:** `Premium`\n{expiry_text}\n🔸 **Ads:** `Disabled`\n🔸 **Requests:** `Enabled`"
     else:
-        plan_text = "**👤 Your Profile:**\n\n🔸 **Plan:** `Free`\n🔸 **Ads:** `Enabled`\n🔸 **Requests:** `Disabled`\n\n🔓 Unlock Premium to get more benefits\nContact: @Mayhem_Premium_Bot"
+        plan_text = "**👤 Your Profile:**\n\n🔸 **Plan:** `Free`\n🔸 **Ads:** `Enabled`\n🔸 **Requests:** `Disabled`\n\n🔓 Unlock Premium to get more benefits\nContact: @Rtx_Contect_bot"
     await message.reply_text(plan_text)
