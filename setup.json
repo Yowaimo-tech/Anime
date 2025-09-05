@@ -21,11 +21,12 @@
             "FSUB_PHOTO": "https://graph.org/file/fdada2e0a2b6482e17ab7-23f0d56ce32ede2b37.jpg",
             "VERIFY_PHOTO": "https://graph.org/file/fdada2e0a2b6482e17ab7-23f0d56ce32ede2b37.jpg"
         },
-        "admins": [6648688093],
+        "admins": [],
         "disable_btn": true,
         "protect": false
     }
 ]
+
 
 
 
