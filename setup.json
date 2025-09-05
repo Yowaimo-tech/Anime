@@ -7,7 +7,7 @@
         "workers": 8,
         "db_uri": "mongodb+srv://Wukong:MbTpYRQbVO2lUd1Z@cluster0.nlh7zf4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
         "db_name": "Orihime",
-        "fsubs": [[-1002544093138, false, 5], [-1002741496585, false, 5]],
+        "fsubs": [],
         "db": -1002929319161,
         "auto_del": 600,
         "ad_wait_time": 50,
@@ -26,6 +26,7 @@
         "protect": false
     }
 ]
+
 
 
 
