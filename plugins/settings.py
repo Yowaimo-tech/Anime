@@ -7,9 +7,10 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors.pyromod import ListenerTimeout
 from pyrogram.errors import FloodWait
 
+# Page 1: Basic Settings
 @Client.on_callback_query(filters.regex("^settings$"))
 async def settings_panel(client, query):
-    # --- Data Loading (No Changes Here) ---
+    # --- Data Loading ---
     saved_settings = await client.mongodb.load_settings(client.session_name)
     if saved_settings:
         client.protect = saved_settings.get("protect", False)
@@ -23,68 +24,89 @@ async def settings_panel(client, query):
         if "messages" in saved_settings:
             client.messages.update(saved_settings["messages"])
 
-    # --- Force-Sub Channel List Formatting (MODIFIED) ---
+    # --- Status String Formatting ---
+    status_protect = "✅ enabled" if client.protect else "❌ disabled"
+    status_share_button = "✅ enabled" if not client.disable_btn else "❌ disabled"
+    auto_del_status = f"{client.auto_del}s" if client.auto_del > 0 else "❌ disabled"
+    verify_expire_status = f"{humanize.naturaldelta(client.verify_expire)}" if client.verify_expire > 0 else "❌ disabled"
+
+    # --- UI Message ---
+    msg = f"""╭───「 🎩 **ʙᴏᴛ ᴄᴏɴꜰɪɢᴜʀᴀᴛɪᴏɴ** 」───╮
+│
+├─ 🛡️  **ᴄᴏɴᴛᴇɴᴛ ᴘʀᴏᴛᴇᴄᴛɪᴏɴ:** `{status_protect}`
+├─ 🔄  **ꜱʜᴀʀᴇ ʙᴜᴛᴛᴏɴ:** `{status_share_button}`
+├─ ⏰  **ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ꜰɪʟᴇꜱ:** `{auto_del_status}`
+├─ ⏳  **ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ:** `{verify_expire_status}`
+│
+╰───「 📄 **ᴘᴀɢᴇ 1/2** 」───╯"""
+
+    # --- Keyboard Layout ---
+    reply_markup = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton('🛡️ ᴘʀᴏᴛᴇᴄᴛ', callback_data='protect'),
+                InlineKeyboardButton('⏰ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ', callback_data='auto_del')
+            ],
+            [
+                InlineKeyboardButton('⏳ ᴠᴇʀɪꜰʏ ᴛɪᴍᴇ', callback_data='verify_expire'),
+                InlineKeyboardButton('🔄 ꜱʜᴀʀᴇ ʙᴜᴛᴛᴏɴ', callback_data='disable_btn_toggle')
+            ],
+            [
+                InlineKeyboardButton('💰 ꜱʜᴏʀᴛᴇɴᴇʀ', callback_data='shortner_settings'),
+                InlineKeyboardButton('📢 ꜰᴏʀᴄᴇ ꜱᴜʙ', callback_data='fsub')
+            ],
+            [
+                InlineKeyboardButton('👑 ᴀᴅᴍɪɴꜱ', callback_data='admins'),
+                InlineKeyboardButton('🎨 ᴄᴏɴᴛᴇɴᴛ', callback_data='settings_page2')
+            ],
+            [
+                InlineKeyboardButton('🏠 ʜᴏᴍᴇ', callback_data='home')
+            ]
+        ]
+    )
+    
+    await query.message.edit_text(msg, reply_markup=reply_markup)
+
+# Page 2: Content & Advanced Settings
+@Client.on_callback_query(filters.regex("^settings_page2$"))
+async def settings_page2(client, query):
+    # --- Force-Sub Channel List Formatting ---
     fsub_channels_text = []
     if client.fsub:
         for ch_id, req_mode, timer in client.fsub:
             try:
                 chat = await client.get_chat(ch_id)
-                # This line is now updated to include the channel ID
                 fsub_channels_text.append(f"│  › {chat.title} (<code>{ch_id}</code>)")
             except Exception:
-                fsub_channels_text.append(f"│  › <i>Invalid Channel</i> (<code>{ch_id}</code>)")
-    fsub_details = "\n".join(fsub_channels_text) if fsub_channels_text else "│  › No channels configured."
+                fsub_channels_text.append(f"│  › <i>ɪɴᴠᴀʟɪᴅ ᴄʜᴀɴɴᴇʟ</i> (<code>{ch_id}</code>)")
+    fsub_details = "\n".join(fsub_channels_text) if fsub_channels_text else "│  › ɴᴏ ᴄʜᴀɴɴᴇʟꜱ ᴄᴏɴꜰɪɢᴜʀᴇᴅ"
 
-    # --- Status String Formatting (No Changes Here) ---
-    status_protect = "✅ Enabled" if client.protect else "❌ Disabled"
-    status_share_button = "✅ Enabled" if not client.disable_btn else "❌ Disabled"
-    auto_del_status = f"{client.auto_del}s" if client.auto_del > 0 else "❌ Disabled"
-    shortener_status = "✅ Enabled" if client.short_url and client.short_api else "❌ Disabled"
-    verify_expire_status = f"{client.verify_expire}s" if client.verify_expire > 0 else "❌ Disabled"
+    shortener_status = "✅ enabled" if client.short_url and client.short_api else "❌ disabled"
 
-    # --- UI Message (No Changes Here) ---
-    msg = f"""╭───「 ⚙️ **Bot Configuration** 」
+    # --- UI Message ---
+    msg = f"""╭───「 🎨 **ᴄᴏɴᴛᴇɴᴛ & ᴀᴅᴠᴀɴᴄᴇᴅ** 」───╮
 │
-├─ 🛡️ **Protect Content:** <code>{status_protect}</code>
-├─ 🔄 **Share Button:** <code>{status_share_button}</code>
-├─ ⏰ **Auto-Delete Files:** <code>{auto_del_status}</code>
-└─ ⏳ **Verification Time:** <code>{verify_expire_status}</code>
-
-╭───「  monetiz. & Users 」
+├─ 💰  **ꜱʜᴏʀᴛᴇɴᴇʀ:** `{shortener_status}`
+├─ 👑  **ᴀᴅᴍɪɴꜱ:** `{len(client.admins)} ᴜꜱᴇʀ(ꜱ)`
 │
-├─ 💰 **Shortener:** <code>{shortener_status}</code>
-└─ 👑 **Admins:** <code>{len(client.admins)} User(s)</code>
-
-╭───「 📢 **Force Subscribe** 」
+╭───「 📢 **ꜰᴏʀᴄᴇ ꜱᴜʙꜱᴄʀɪʙᴇ** 」───╮
 │
 {fsub_details}
 │
-╰─────────────────"""
+╰───「 📄 **ᴘᴀɢᴇ 2/2** 」───╯"""
 
-    # --- Keyboard Layout (No Changes Here) ---
+    # --- Keyboard Layout ---
     reply_markup = InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton('🛡️ Protect', callback_data='protect'),
-                InlineKeyboardButton('⏰ Auto-Delete', callback_data='auto_del')
+                InlineKeyboardButton('📝 ᴛᴇxᴛꜱ', callback_data='texts'),
+                InlineKeyboardButton('🖼️ ᴘʜᴏᴛᴏꜱ', callback_data='photos')
             ],
             [
-                InlineKeyboardButton('⏳ Verify Time', callback_data='verify_expire'),
-                InlineKeyboardButton('🔄 Share Button', callback_data='disable_btn_toggle')
+                InlineKeyboardButton('« ʙᴀᴄᴋ ᴛᴏ ᴘᴀɢᴇ 1', callback_data='settings')
             ],
             [
-                InlineKeyboardButton('👑 Admins', callback_data='admins'),
-                InlineKeyboardButton('🔗 Force Sub', callback_data='fsub')
-            ],
-            [
-                InlineKeyboardButton('📝 Texts', callback_data='texts'),
-                InlineKeyboardButton('🖼️ Photos', callback_data='photos')
-            ],
-            [
-                InlineKeyboardButton('💰 Shortener Settings', callback_data='shortner_settings')
-            ],
-            [
-                InlineKeyboardButton('« Back to Home', callback_data='home')
+                InlineKeyboardButton('🏠 ʜᴏᴍᴇ', callback_data='home')
             ]
         ]
     )
@@ -96,35 +118,35 @@ async def settings_panel(client, query):
 async def protect_callback(client, query):
     client.protect = not client.protect
     await client.mongodb.save_settings(client.session_name, client.get_current_settings())
-    await query.answer(f"Protect Content is now {'Enabled' if client.protect else 'Disabled'}", show_alert=True)
+    await query.answer(f"🛡️ ᴘʀᴏᴛᴇᴄᴛ ᴄᴏɴᴛᴇɴᴛ ɪꜱ ɴᴏᴡ {'ᴇɴᴀʙʟᴇᴅ' if client.protect else 'ᴅɪꜱᴀʙʟᴇᴅ'}", show_alert=True)
     await settings_panel(client, query)
 
 @Client.on_callback_query(filters.regex("^disable_btn_toggle$"))
 async def disable_btn_callback(client, query):
     client.disable_btn = not client.disable_btn
     await client.mongodb.save_settings(client.session_name, client.get_current_settings())
-    await query.answer(f"Share Button is now {'Disabled' if client.disable_btn else 'Enabled'}", show_alert=True)
+    await query.answer(f"🔄 ꜱʜᴀʀᴇ ʙᴜᴛᴛᴏɴ ɪꜱ ɴᴏᴡ {'ᴅɪꜱᴀʙʟᴇᴅ' if client.disable_btn else 'ᴇɴᴀʙʟᴇᴅ'}", show_alert=True)
     await settings_panel(client, query)
 
 @Client.on_callback_query(filters.regex("^auto_del$"))
 async def auto_del_callback(client, query):
     await query.answer()
     try:
-        current_timer_display = f"{client.auto_del} seconds" if client.auto_del > 0 else "Disabled"
+        current_timer_display = f"{client.auto_del} seconds" if client.auto_del > 0 else "disabled"
         ask_msg = await client.ask(
             chat_id=query.from_user.id,
-            text=f"Current auto-delete timer is `{current_timer_display}`.\n\nEnter a new time in seconds (use 0 to disable).",
+            text=f"⏰ **ᴄᴜʀʀᴇɴᴛ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ᴛɪᴍᴇʀ:** `{current_timer_display}`\n\n📥 ᴇɴᴛᴇʀ ɴᴇᴡ ᴛɪᴍᴇ ɪɴ ꜱᴇᴄᴏɴᴅꜱ (ᴜꜱᴇ 0 ᴛᴏ ᴅɪꜱᴀʙʟᴇ):",
             filters=filters.text, timeout=60
         )
         if ask_msg.text.isdigit():
             client.auto_del = int(ask_msg.text)
             await client.mongodb.save_settings(client.session_name, client.get_current_settings())
-            new_timer_display = f"{client.auto_del} seconds" if client.auto_del > 0 else "Disabled"
-            await ask_msg.reply(f"✅ Auto-delete timer updated to `{new_timer_display}`.")
+            new_timer_display = f"{client.auto_del} seconds" if client.auto_del > 0 else "disabled"
+            await ask_msg.reply(f"✅ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ᴛɪᴍᴇʀ ᴜᴘᴅᴀᴛᴇᴅ ᴛᴏ `{new_timer_display}`")
         else:
-            await ask_msg.reply("❌ Invalid input. Please enter a valid number.")
+            await ask_msg.reply("❌ ɪɴᴠᴀʟɪᴅ ɪɴᴘᴜᴛ. ᴘʟᴇᴀꜱᴇ ᴇɴᴛᴇʀ ᴀ ᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ")
     except ListenerTimeout:
-        await query.message.reply("⏰ Timeout. Operation cancelled.")
+        await query.message.reply("⏰ ᴛɪᴍᴇᴏᴜᴛ. ᴏᴘᴇʀᴀᴛɪᴏɴ ᴄᴀɴᴄᴇʟʟᴇᴅ")
     
     await settings_panel(client, query)
 
@@ -132,20 +154,20 @@ async def auto_del_callback(client, query):
 async def verify_expire_callback(client, query):
     await query.answer()
     try:
-        current_timer_display = f"{client.verify_expire} seconds" if client.verify_expire > 0 else "Disabled"
+        current_timer_display = f"{humanize.naturaldelta(client.verify_expire)}" if client.verify_expire > 0 else "disabled"
         ask_msg = await client.ask(
             chat_id=query.from_user.id,
-            text=f"Current verification expiry time is `{current_timer_display}`.\n\nEnter a new time in seconds (e.g., `3600` for 1 hour). Use 0 to disable.",
+            text=f"⏳ **ᴄᴜʀʀᴇɴᴛ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴇxᴘɪʀʏ:** `{current_timer_display}`\n\n📥 ᴇɴᴛᴇʀ ɴᴇᴡ ᴛɪᴍᴇ ɪɴ ꜱᴇᴄᴏɴᴅꜱ (ᴇ.ɢ., `3600` ꜰᴏʀ 1 ʜᴏᴜʀ):",
             filters=filters.text, timeout=60
         )
         if ask_msg.text.isdigit():
             client.verify_expire = int(ask_msg.text)
             await client.mongodb.save_settings(client.session_name, client.get_current_settings())
-            new_timer_display = f"{client.verify_expire} seconds" if client.verify_expire > 0 else "Disabled"
-            await ask_msg.reply(f"✅ Verification expiry time updated to `{new_timer_display}`.")
+            new_timer_display = f"{humanize.naturaldelta(client.verify_expire)}" if client.verify_expire > 0 else "disabled"
+            await ask_msg.reply(f"✅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴇxᴘɪʀʏ ᴛɪᴍᴇ ᴜᴘᴅᴀᴛᴇᴅ ᴛᴏ `{new_timer_display}`")
         else:
-            await ask_msg.reply("❌ Invalid input. Please enter a valid number of seconds.")
+            await ask_msg.reply("❌ ɪɴᴠᴀʟɪᴅ ɪɴᴘᴜᴛ. ᴘʟᴇᴀꜱᴇ ᴇɴᴛᴇʀ ᴀ ᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ꜱᴇᴄᴏɴᴅꜱ")
     except ListenerTimeout:
-        await query.message.reply("⏰ Timeout. Operation cancelled.")
+        await query.message.reply("⏰ ᴛɪᴍᴇᴏᴜᴛ. ᴏᴘᴇʀᴀᴛɪᴏɴ ᴄᴀɴᴄᴇʟʟᴇᴅ")
     
     await settings_panel(client, query)
