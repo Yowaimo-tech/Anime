@@ -1,7 +1,7 @@
 [
     {
         "session": "orihime",
-        "token": "mongodb+srv://Luffy:admin@cluster0.5q3w0bn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+        "token": "8430878690:AAGtZR-FLlbT6A9mFYxKCiI_2esixg-hdpQ",
         "api_id": "11619403",
         "api_hash": "b9529ed85c826521157c522f96350c8b",
         "workers": 8,
@@ -26,6 +26,7 @@
         "protect": false
     }
 ]
+
 
 
 
