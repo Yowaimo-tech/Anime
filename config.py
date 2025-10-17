@@ -1,5 +1,3 @@
-# @NaapaExtra
-
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -7,7 +5,7 @@ import os
 LOG_FILE_NAME = "bot.log"
 PORT = os.environ.get('PORT', '8015')
 
-OWNER_ID = 7662893075
+OWNER_ID = 8026801357
 MSG_EFFECT = 5159385139981059251
 SHORT_URL = "arolinks.com"
 SHORT_API = "c1a0488312eee000ba21bc8624a7965d55e97db9"
