@@ -5,17 +5,16 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, InputMediaPhoto
 from pyrogram.errors import UserNotParticipant, FloodWait, ChatAdminRequired, RPCError
 from pyrogram.errors import InviteHashExpired, InviteRequestSent
-from database.database import save_channel, delete_channel, get_channels
+from helper.database import save_channel, delete_channel, get_channels
 from config import *
-from database.database import *
-from helper_func import *
+from helper.database import *
 from datetime import datetime, timedelta
 
 PAGE_SIZE = 6
 chat_info_cache = {}
 
 # Default photo for links (you can change this URL)
-DEFAULT_LINKS_PHOTO = "https://telegra.ph/file/1c5c6d12c8b68e2e0a0a5.jpg"
+DEFAULT_LINKS_PHOTO = "https://i.ibb.co/20xbCXvP/jsorg.jpg"
 
 async def revoke_invite_after_5_minutes(client: Bot, channel_id: int, link: str, is_request: bool = False):
     """Revoke invite link after 10 minutes"""
