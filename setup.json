@@ -5,7 +5,7 @@
         "api_id": "11619403",
         "api_hash": "b9529ed85c826521157c522f96350c8b",
         "workers": 8,
-        "db_uri": "7880599499:AAFbA5ACyG0bU8hTZ__tNdzz25j7s34qvSc",
+        "db_uri": "mongodb+srv://Hinata:admin@cluster0.euqurps.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
         "db_name": "Orihime",
         "fsubs": [],
         "db": -1003088046548,
@@ -26,6 +26,7 @@
         "protect": false
     }
 ]
+
 
 
 
