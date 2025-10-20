@@ -495,5 +495,5 @@ async def send_channel_ids_page(client, message, channels, page, status_msg=None
                     media=InputMediaPhoto(
                         DEFAULT_LINKS_PHOTO,
                         caption=caption
-                    ),
+                    )
                
