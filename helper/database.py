@@ -32,6 +32,140 @@ class MongoDB:
             cls._instances[(uri, db_name)] = instance
         return cls._instances[(uri, db_name)]
 
+    # Channel Management Functions
+    async def save_channel(self, channel_id: int):
+        """Save channel to database"""
+        try:
+            await self.channel_data.update_one(
+                {"_id": channel_id},
+                {"$set": {"added_at": datetime.utcnow()}},
+                upsert=True
+            )
+            # Also add to channels list in user_data
+            channels = await self.get_channels()
+            if channel_id not in channels:
+                channels.append(channel_id)
+                await self.user_data.update_one(
+                    {"_id": 1},
+                    {"$set": {"channels": channels}},
+                    upsert=True
+                )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to save channel {channel_id}: {e}")
+            return False
+
+    async def delete_channel(self, channel_id: int):
+        """Delete channel from database"""
+        try:
+            # Remove from channel_data collection
+            await self.channel_data.delete_one({"_id": channel_id})
+            
+            # Remove from channels list
+            channels = await self.get_channels()
+            if channel_id in channels:
+                channels.remove(channel_id)
+                await self.user_data.update_one(
+                    {"_id": 1},
+                    {"$set": {"channels": channels}},
+                    upsert=True
+                )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to delete channel {channel_id}: {e}")
+            return False
+
+    async def get_channels(self):
+        """Get all channels from database"""
+        try:
+            user_doc = await self.user_data.find_one({"_id": 1})
+            if user_doc and "channels" in user_doc:
+                return user_doc["channels"]
+            return []
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to get channels: {e}")
+            return []
+
+    async def save_encoded_link(self, channel_id: int, encoded_str: str):
+        """Save encoded link for channel"""
+        try:
+            await self.channel_data.update_one(
+                {"_id": channel_id},
+                {"$set": {"encoded_link": encoded_str}},
+                upsert=True
+            )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to save encoded link for {channel_id}: {e}")
+            return False
+
+    async def save_encoded_request_link(self, channel_id: int, encoded_str: str):
+        """Save encoded request link for channel"""
+        try:
+            await self.channel_data.update_one(
+                {"_id": channel_id},
+                {"$set": {"encoded_request": encoded_str}},
+                upsert=True
+            )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to save encoded request for {channel_id}: {e}")
+            return False
+
+    async def get_channel_info(self, channel_id: int):
+        """Get channel information"""
+        try:
+            return await self.channel_data.find_one({"_id": channel_id})
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to get channel info for {channel_id}: {e}")
+            return None
+
+    async def add_channel_user(self, channel_id: int, user_id: int):
+        """Add user to channel's user list"""
+        try:
+            await self.channel_data.update_one(
+                {"_id": channel_id}, 
+                {"$addToSet": {"users": user_id}}, 
+                upsert=True
+            )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to add user {user_id} to channel {channel_id}: {e}")
+            return False
+
+    async def remove_channel_user(self, channel_id: int, user_id: int):
+        """Remove user from channel's user list"""
+        try:
+            await self.channel_data.update_one(
+                {"_id": channel_id}, 
+                {"$pull": {"users": user_id}}
+            )
+            return True
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to remove user {user_id} from channel {channel_id}: {e}")
+            return False
+
+    async def get_channel_users(self, channel_id: int):
+        """Get all users in a channel"""
+        try:
+            channel = await self.channel_data.find_one({"_id": channel_id})
+            return channel.get("users", []) if channel else []
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to get users for channel {channel_id}: {e}")
+            return []
+
+    async def is_user_in_channel(self, channel_id: int, user_id: int):
+        """Check if user is in channel"""
+        try:
+            channel = await self.channel_data.find_one(
+                {"_id": channel_id, "users": user_id}
+            )
+            return channel is not None
+        except Exception as e:
+            self.LOGGER(__name__, "DB_CHANNEL").error(f"Failed to check user in channel {channel_id}: {e}")
+            return False
+
+    # Existing functions from your original code
     async def get_verify_status(self, user_id: int):
         user = await self.user_data.find_one({'_id': user_id})
         return user.get('verify_status', default_verify) if user else default_verify
@@ -56,7 +190,6 @@ class MongoDB:
         yesterday_count = yesterday_data.get('count', 0) if yesterday_data else 0
         return today_count, yesterday_count
 
-    # --- Reverted: Removed bypass_ts from the query and state ---
     async def get_user_state(self, user_id: int):
         try:
             user_doc = await self.user_data.find_one({'_id': user_id}, {'ban': 1})
@@ -114,9 +247,6 @@ class MongoDB:
     async def full_userbase(self):
         return [doc['_id'] async for doc in self.user_data.find({}, {'_id': 1})]
 
-    async def is_user_in_channel(self, channel_id: int, user_id: int):
-        return await self.channel_data.find_one({"_id": channel_id, "users": user_id}) is not None
-
     async def is_pro(self, user_id: int):
         state, _ = await self.get_user_state(user_id)
         return state.get('is_pro', False) if state else False
@@ -149,9 +279,6 @@ class MongoDB:
 
     async def set_channels(self, channels: list[int]):
         await self.user_data.update_one({"_id": 1}, {"$set": {"channels": channels}}, upsert=True)
-
-    async def add_channel_user(self, channel_id: int, user_id: int):
-        await self.channel_data.update_one({"_id": channel_id}, {"$addToSet": {"users": user_id}}, upsert=True)
 
     async def add_pro(self, user_id, expires_at=None):
         try:
