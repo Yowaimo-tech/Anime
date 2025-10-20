@@ -202,7 +202,7 @@ async def send_paginated_content(client, message, channels, page, content_type, 
 async def channel_post(client: Client, message: Message):
     """Show channel links as buttons - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     status_msg = await message.reply("⏳")
@@ -222,7 +222,7 @@ async def channel_post(client: Client, message: Message):
 async def req_post(client: Client, message: Message):
     """Show request links as buttons - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     status_msg = await message.reply("⏳")
@@ -259,7 +259,7 @@ async def paginate_content(client: Client, callback_query):
 async def show_links(client: Client, message: Message):
     """Show all links as text with pagination and photo - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     status_msg = await message.reply("⏳")
@@ -378,7 +378,7 @@ async def send_links_page(client, message, channels, page, status_msg=None, edit
 async def paginate_links(client: Client, callback_query):
     """Handle pagination for links pages"""
     # Check if user is admin
-    if callback_query.from_user.id not in ADMINS:
+    if callback_query.from_user.id not in admins:
         await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
         return
     
@@ -391,7 +391,7 @@ async def paginate_links(client: Client, callback_query):
 async def bulk_link(client: Client, message: Message):
     """Generate links for multiple channels at once - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     if len(message.command) < 2:
@@ -427,7 +427,7 @@ async def bulk_link(client: Client, message: Message):
 async def generate_link_command(client: Client, message: Message):
     """Generate links for external URLs - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     if len(message.command) < 2:
@@ -467,7 +467,7 @@ async def generate_link_command(client: Client, message: Message):
 async def show_channel_ids(client: Client, message: Message):
     """Show all channel IDs and names - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     status_msg = await message.reply("⏳")
@@ -559,7 +559,7 @@ async def send_channel_ids_page(client, message, channels, page, status_msg=None
 async def paginate_channel_ids(client: Client, callback_query):
     """Handle pagination for channel IDs pages"""
     # Check if user is admin
-    if callback_query.from_user.id not in ADMINS:
+    if callback_query.from_user.id not in admins:
         await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
         return
     
