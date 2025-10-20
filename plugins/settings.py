@@ -42,19 +42,7 @@ async def settings_panel(client, query):
 
     # --- UI Message ---
     msg = f"""**ʙᴏᴛ sᴇᴛᴛɪɴɢs (ᴘᴀɢᴇ 1/2)**
-ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ ᴍᴀɴᴀɢᴇ ᴛʜᴇ ʙᴏᴛ's ᴄᴏʀᴇ ғᴇᴀᴛᴜʀᴇs.
-
-**ғsᴜʙ ᴄʜᴀɴɴᴇʟs**
-{fsub_details}
-
-**ᴀᴅᴍɪɴs**
-**ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ**
-**ᴘʀᴏᴛᴇᴄᴛ ᴄᴏɴᴛᴇɴᴛ**
-**sʜᴏʀᴛᴇɴᴇʀ**
-**ᴠᴇʀɪғʏ ᴛɪᴍᴇ**
-**sʜᴀʀᴇ ʙᴜᴛᴛᴏɴ**
-
-**ʜᴏᴍᴇ** > **ɴᴇxᴛ**"""
+ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ ᴍᴀɴᴀɢᴇ ᴛʜᴇ ʙᴏᴛ's ᴄᴏʀᴇ ғᴇᴀᴛᴜʀᴇs."""
 
     # --- Keyboard Layout ---
     reply_markup = InlineKeyboardMarkup(
@@ -88,14 +76,7 @@ async def settings_panel(client, query):
 async def settings_page2(client, query):
     # --- UI Message ---
     msg = f"""**ʙᴏᴛ sᴇᴛᴛɪɴɢs (ᴘᴀɢᴇ 2/2)**
-ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ ᴍᴀɴᴀɢᴇ ᴛʜᴇ ʙᴏᴛ's ᴄᴏʀᴇ ғᴇᴀᴛᴜʀᴇs.
-
-**ᴘʀᴏᴛᴇᴄᴛ ᴄᴏɴᴛᴇɴᴛ:**
-**ᴘʜᴏᴛᴏs**
-**ᴛᴇxᴛs**
-
-**< ʙᴀᴄᴋ**
-**ʜᴏᴍᴇ**"""
+ᴜsᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ ᴍᴀɴᴀɢᴇ ᴛʜᴇ ʙᴏᴛ's ᴄᴏʀᴇ ғᴇᴀᴛᴜʀᴇs."""
 
     # --- Keyboard Layout ---
     reply_markup = InlineKeyboardMarkup(
