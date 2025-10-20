@@ -16,7 +16,7 @@ chat_info_cache = {}
 # Default photo for links (you can change this URL)
 DEFAULT_LINKS_PHOTO = "https://i.ibb.co/20xbCXvP/jsorg.jpg"
 
-async def revoke_invite_after_5_minutes(client: Bot, channel_id: int, link: str, is_request: bool = False):
+async def revoke_invite_after_5_minutes(client: Client, channel_id: int, link: str, is_request: bool = False):
     """Revoke invite link after 10 minutes"""
     await asyncio.sleep(600)  # 10 minutes
     try:
@@ -26,7 +26,7 @@ async def revoke_invite_after_5_minutes(client: Bot, channel_id: int, link: str,
     except Exception as e:
         print(f"Failed to revoke {action_type} link for channel {channel_id}: {e}")
 
-async def validate_chat_permissions(client: Bot, chat) -> bool:
+async def validate_chat_permissions(client: Client, chat) -> bool:
     """Validate if bot has necessary permissions in the chat"""
     if not chat.permissions:
         return True
@@ -47,7 +47,7 @@ async def validate_chat_permissions(client: Bot, chat) -> bool:
             
     return False
 
-async def generate_channel_links(client: Bot, channel_id: int) -> tuple:
+async def generate_channel_links(client: Client, channel_id: int) -> tuple:
     """Generate both normal and request links for a channel"""
     base64_invite = await save_encoded_link(channel_id)
     normal_link = f"https://t.me/{client.username}?start={base64_invite}"
@@ -58,9 +58,13 @@ async def generate_channel_links(client: Bot, channel_id: int) -> tuple:
     
     return normal_link, request_link
 
-@Bot.on_message((filters.command('addchat') | filters.command('addch')) & is_owner_or_admin)
-async def set_channel(client: Bot, message: Message):
-    """Add a chat to the database"""
+@Client.on_message((filters.command('addchat') | filters.command('addch')) & filters.private)
+async def set_channel(client: Client, message: Message):
+    """Add a chat to the database - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     if len(message.command) < 2:
         return await message.reply(
             "<b><blockquote expandable>Invalid chat ID. Example: <code>/addchat &lt;chat_id&gt;</code></b>"
@@ -101,9 +105,13 @@ async def set_channel(client: Bot, message: Message):
     except Exception as e:
         return await message.reply(f"<b>Unexpected Error:</b> <code>{str(e)}</code>")
 
-@Bot.on_message((filters.command('delchat') | filters.command('delch')) & is_owner_or_admin)
-async def del_channel(client: Bot, message: Message):
-    """Remove a chat from the database"""
+@Client.on_message((filters.command('delchat') | filters.command('delch')) & filters.private)
+async def del_channel(client: Client, message: Message):
+    """Remove a chat from the database - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     if len(message.command) < 2:
         return await message.reply(
             "<b><blockquote expandable>Invalid chat ID. Example: <code>/delch &lt;chat_id&gt;</code></b>"
@@ -190,9 +198,13 @@ async def send_paginated_content(client, message, channels, page, content_type, 
     else:
         await message.reply(titles.get(content_type, "Select:"), reply_markup=reply_markup)
 
-@Bot.on_message(filters.command('ch_links') & is_owner_or_admin)
-async def channel_post(client: Bot, message: Message):
-    """Show channel links as buttons"""
+@Client.on_message(filters.command('ch_links') & filters.private)
+async def channel_post(client: Client, message: Message):
+    """Show channel links as buttons - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     status_msg = await message.reply("⏳")
     try:
         channels = await get_channels()
@@ -206,9 +218,13 @@ async def channel_post(client: Bot, message: Message):
         await status_msg.delete()
         await message.reply(f"<b>Error:</b> <code>{str(e)}</code>")
 
-@Bot.on_message(filters.command('reqlink') & is_owner_or_admin)
-async def req_post(client: Bot, message: Message):
-    """Show request links as buttons"""
+@Client.on_message(filters.command('reqlink') & filters.private)
+async def req_post(client: Client, message: Message):
+    """Show request links as buttons - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     status_msg = await message.reply("⏳")
     try:
         channels = await get_channels()
@@ -222,9 +238,14 @@ async def req_post(client: Bot, message: Message):
         await status_msg.delete()
         await message.reply(f"<b>Error:</b> <code>{str(e)}</code>")
 
-@Bot.on_callback_query(filters.regex(r"(channel|req)page_(\d+)"))
-async def paginate_content(client, callback_query):
+@Client.on_callback_query(filters.regex(r"(channel|req)page_(\d+)"))
+async def paginate_content(client: Client, callback_query):
     """Handle pagination for both channel and request pages"""
+    # Check if user is admin
+    if callback_query.from_user.id not in ADMINS:
+        await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
+        return
+    
     content_type, page_str = callback_query.data.split("_")
     page = int(page_str)
     
@@ -234,9 +255,13 @@ async def paginate_content(client, callback_query):
         client, callback_query.message, channels, page, content_type, status_msg, edit=True
     )
 
-@Bot.on_message(filters.command('links') & is_owner_or_admin)
-async def show_links(client: Bot, message: Message):
-    """Show all links as text with pagination and photo"""
+@Client.on_message(filters.command('links') & filters.private)
+async def show_links(client: Client, message: Message):
+    """Show all links as text with pagination and photo - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     status_msg = await message.reply("⏳")
     try:
         channels = await get_channels()
@@ -349,17 +374,26 @@ async def send_links_page(client, message, channels, page, status_msg=None, edit
         else:
             await message.reply(caption, reply_markup=reply_markup)
 
-@Bot.on_callback_query(filters.regex(r"linkspage_(\d+)"))
-async def paginate_links(client, callback_query):
+@Client.on_callback_query(filters.regex(r"linkspage_(\d+)"))
+async def paginate_links(client: Client, callback_query):
     """Handle pagination for links pages"""
+    # Check if user is admin
+    if callback_query.from_user.id not in ADMINS:
+        await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
+        return
+    
     page = int(callback_query.data.split("_")[1])
     status_msg = await callback_query.message.edit_text("⏳")
     channels = await get_channels()
     await send_links_page(client, callback_query.message, channels, page, status_msg, edit=True)
 
-@Bot.on_message(filters.command('bulklink') & is_owner_or_admin)
-async def bulk_link(client: Bot, message: Message):
-    """Generate links for multiple channels at once"""
+@Client.on_message(filters.command('bulklink') & filters.private)
+async def bulk_link(client: Client, message: Message):
+    """Generate links for multiple channels at once - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     if len(message.command) < 2:
         return await message.reply(
             "<b><blockquote expandable>Usage: <code>/bulklink &lt;id1&gt; &lt;id2&gt; ...</code></b>"
@@ -389,9 +423,13 @@ async def bulk_link(client: Bot, message: Message):
     except Exception:
         await message.reply(caption)
 
-@Bot.on_message(filters.command('genlink') & filters.private & is_owner_or_admin)
-async def generate_link_command(client: Bot, message: Message):
-    """Generate links for external URLs"""
+@Client.on_message(filters.command('genlink') & filters.private)
+async def generate_link_command(client: Client, message: Message):
+    """Generate links for external URLs - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     if len(message.command) < 2:
         return await message.reply("<b>Usage:</b> <code>/genlink &lt;link&gt;</code>")
 
@@ -425,9 +463,13 @@ async def generate_link_command(client: Bot, message: Message):
     except Exception as e:
         await message.reply(f"<b>Error storing link:</b> <code>{e}</code>")
 
-@Bot.on_message(filters.command('channels') & is_owner_or_admin)
-async def show_channel_ids(client: Bot, message: Message):
-    """Show all channel IDs and names"""
+@Client.on_message(filters.command('channels') & filters.private)
+async def show_channel_ids(client: Client, message: Message):
+    """Show all channel IDs and names - Only for admins"""
+    # Check if user is admin
+    if message.from_user.id not in ADMINS:
+        return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
+    
     status_msg = await message.reply("⏳")
     try:
         channels = await get_channels()
@@ -498,12 +540,9 @@ async def send_channel_ids_page(client, message, channels, page, status_msg=None
                     ),
                     reply_markup=reply_markup
                 )
-            except Exception as e:
-                print(f"Error editing media: {e}")
-                # Fallback to text editing if photo editing fails
+            except:
                 await message.edit_text(caption, reply_markup=reply_markup)
         else:
-            # For new messages, send with photo
             await message.reply_photo(
                 photo=DEFAULT_LINKS_PHOTO,
                 caption=caption,
@@ -511,30 +550,20 @@ async def send_channel_ids_page(client, message, channels, page, status_msg=None
             )
     except Exception as e:
         print(f"Error sending photo message: {e}")
-        # Fallback to text message
         if edit:
             await message.edit_text(caption, reply_markup=reply_markup)
         else:
             await message.reply(caption, reply_markup=reply_markup)
 
-@Bot.on_callback_query(filters.regex(r"channelids_(\d+)"))
-async def paginate_channel_ids(client, callback_query):
+@Client.on_callback_query(filters.regex(r"channelids_(\d+)"))
+async def paginate_channel_ids(client: Client, callback_query):
     """Handle pagination for channel IDs pages"""
+    # Check if user is admin
+    if callback_query.from_user.id not in ADMINS:
+        await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
+        return
+    
     page = int(callback_query.data.split("_")[1])
     status_msg = await callback_query.message.edit_text("⏳")
     channels = await get_channels()
     await send_channel_ids_page(client, callback_query.message, channels, page, status_msg, edit=True)
-
-# Helper function to get chat info with caching
-async def get_chat_info(client, chat_id):
-    """Get chat info with caching to avoid too many API calls"""
-    if chat_id in chat_info_cache:
-        return chat_info_cache[chat_id]
-    
-    try:
-        chat = await client.get_chat(chat_id)
-        chat_info_cache[chat_id] = chat
-        return chat
-    except Exception as e:
-        print(f"Error getting chat info for {chat_id}: {e}")
-        raise e
