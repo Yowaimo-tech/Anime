@@ -495,5 +495,46 @@ async def send_channel_ids_page(client, message, channels, page, status_msg=None
                     media=InputMediaPhoto(
                         DEFAULT_LINKS_PHOTO,
                         caption=caption
-                    )
-               
+                    ),
+                    reply_markup=reply_markup
+                )
+            except Exception as e:
+                print(f"Error editing media: {e}")
+                # Fallback to text editing if photo editing fails
+                await message.edit_text(caption, reply_markup=reply_markup)
+        else:
+            # For new messages, send with photo
+            await message.reply_photo(
+                photo=DEFAULT_LINKS_PHOTO,
+                caption=caption,
+                reply_markup=reply_markup
+            )
+    except Exception as e:
+        print(f"Error sending photo message: {e}")
+        # Fallback to text message
+        if edit:
+            await message.edit_text(caption, reply_markup=reply_markup)
+        else:
+            await message.reply(caption, reply_markup=reply_markup)
+
+@Bot.on_callback_query(filters.regex(r"channelids_(\d+)"))
+async def paginate_channel_ids(client, callback_query):
+    """Handle pagination for channel IDs pages"""
+    page = int(callback_query.data.split("_")[1])
+    status_msg = await callback_query.message.edit_text("⏳")
+    channels = await get_channels()
+    await send_channel_ids_page(client, callback_query.message, channels, page, status_msg, edit=True)
+
+# Helper function to get chat info with caching
+async def get_chat_info(client, chat_id):
+    """Get chat info with caching to avoid too many API calls"""
+    if chat_id in chat_info_cache:
+        return chat_info_cache[chat_id]
+    
+    try:
+        chat = await client.get_chat(chat_id)
+        chat_info_cache[chat_id] = chat
+        return chat
+    except Exception as e:
+        print(f"Error getting chat info for {chat_id}: {e}")
+        raise e
