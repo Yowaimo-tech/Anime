@@ -5,7 +5,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, InputMediaPhoto
 from pyrogram.errors import UserNotParticipant, FloodWait, ChatAdminRequired, RPCError
 from pyrogram.errors import InviteHashExpired, InviteRequestSent
-from helper.database import save_channel, delete_channel, get_channels
+from helper.database import MongoDB
 from config import *
 from helper.database import *
 from datetime import datetime, timedelta
