@@ -62,7 +62,7 @@ async def generate_channel_links(client: Client, channel_id: int) -> tuple:
 async def set_channel(client: Client, message: Message):
     """Add a chat to the database - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     if len(message.command) < 2:
@@ -109,7 +109,7 @@ async def set_channel(client: Client, message: Message):
 async def del_channel(client: Client, message: Message):
     """Remove a chat from the database - Only for admins"""
     # Check if user is admin
-    if message.from_user.id not in ADMINS:
+    if message.from_user.id not in admins:
         return await message.reply("<b>🚫 Access Denied. This command is for admins only.</b>")
     
     if len(message.command) < 2:
@@ -242,7 +242,7 @@ async def req_post(client: Client, message: Message):
 async def paginate_content(client: Client, callback_query):
     """Handle pagination for both channel and request pages"""
     # Check if user is admin
-    if callback_query.from_user.id not in ADMINS:
+    if callback_query.from_user.id not in admins:
         await callback_query.answer("🚫 Access Denied. Admins only.", show_alert=True)
         return
     
