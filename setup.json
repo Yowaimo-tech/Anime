@@ -8,7 +8,7 @@
         "db_uri": "mongodb+srv://Menosa:MenosaFiles@cluster0.ng3aulq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
         "db_name": "Orihime",
         "fsubs": [],
-        "db": -1003057136696,
+        "db": -1002627648930,
         "auto_del": 600,
         "ad_wait_time": 50,
         "messages": {
@@ -26,6 +26,7 @@
         "protect": false
     }
 ]
+
 
 
 
